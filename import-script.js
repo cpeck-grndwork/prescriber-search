@@ -7,7 +7,7 @@ import fs from 'fs';
 import readline from 'readline';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
-const TABLE_NAME = 'Prescription-uuvdrb2j3vgz3dzuh2jpib3hke-NONE'; // Get from amplify_outputs.json
+const TABLE_NAME = 'Prescription-2tozfkjj5ragdb5gqxn2kk2ugu-NONE'; // Get from amplify_outputs.json
 const CSV_PATH = 'C:\\Users\\cpeck\\MUP_DPR_RY25_P04_V10_DY23_NPIBN.csv';
 
 async function importData() {

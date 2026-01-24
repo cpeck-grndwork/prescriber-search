@@ -26,6 +26,7 @@ export default function Home() {
     setPrescriberResults([]);
     setPrescriberMatches([]);
     setSelectedNpi(null);
+    setDrugResults([]);
     try {
       let data;
       // Check if input is numeric (NPI) or text (name)
@@ -74,6 +75,8 @@ export default function Home() {
 
   const searchByDrug = async () => {
     setLoading(true);
+    setPrescriberResults([]);
+    setPrescriberMatches([]);
     try {
       // Search Drug table for partial matches
       const drugResult = await client.models.Drug.list({
@@ -115,78 +118,81 @@ export default function Home() {
     <div className="container">
       <h1>What do they prescribe?</h1>
 
-      <div className="search-section">
-        <h2>Search by Prescriber NPI or Name</h2>
-        <div className="search-form">
-          <input
-            type="text"
-            placeholder="Enter NPI or Name (e.g., 1003000126 or Smith)"
-            value={npiSearch}
-            onChange={(e) => setNpiSearch(e.target.value)}
-          />
-          <button onClick={searchByPrescriber} disabled={loading}>
-            Search
-          </button>
+      {drugResults.length === 0 && (
+        <div className="search-section">
+          <h2>Search by Prescriber NPI or Name</h2>
+          <div className="search-form">
+            <input
+              type="text"
+              placeholder="Enter NPI or Name (e.g., 1003000126 or Smith)"
+              value={npiSearch}
+              onChange={(e) => setNpiSearch(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && searchByPrescriber()}
+            />
+            <button onClick={searchByPrescriber} disabled={loading}>
+              Search
+            </button>
+          </div>
+          {prescriberMatches.length > 0 && (
+            <div className="results">
+              <h3>Select Prescriber ({prescriberMatches.length} matches)</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>NPI</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {prescriberMatches.map((prescriber) => (
+                    <tr key={prescriber.npi}>
+                      <td>{prescriber.prescriberName}</td>
+                      <td>{prescriber.npi}</td>
+                      <td>{prescriber.city}, {prescriber.state}</td>
+                      <td>{prescriber.prescriberType}</td>
+                      <td>
+                        <button onClick={() => selectPrescriber(prescriber.npi, prescriber.prescriberName)}>
+                          View Meds
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {prescriberResults.length > 0 && (
+            <div className="results">
+              <h3>Medications Prescribed by {selectedPrescriberName} ({prescriberResults.length})</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Brand Name</th>
+                    <th>Generic Name</th>
+                    <th>Total Claims</th>
+                    <th>Beneficiaries</th>
+                    <th>Total Cost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {prescriberResults.filter(rx => rx !== null).map((rx) => (
+                    <tr key={rx.id}>
+                      <td>{rx.brandName}</td>
+                      <td>{rx.genericName}</td>
+                      <td>{rx.totalClaims?.toLocaleString()}</td>
+                      <td>{rx.totalBeneficiaries?.toLocaleString()}</td>
+                      <td>${rx.totalDrugCost?.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-        {prescriberMatches.length > 0 && (
-          <div className="results">
-            <h3>Select Prescriber ({prescriberMatches.length} matches)</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>NPI</th>
-                  <th>Location</th>
-                  <th>Type</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {prescriberMatches.map((prescriber) => (
-                  <tr key={prescriber.npi}>
-                    <td>{prescriber.prescriberName}</td>
-                    <td>{prescriber.npi}</td>
-                    <td>{prescriber.city}, {prescriber.state}</td>
-                    <td>{prescriber.prescriberType}</td>
-                    <td>
-                      <button onClick={() => selectPrescriber(prescriber.npi, prescriber.prescriberName)}>
-                        View Meds
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-        {prescriberResults.length > 0 && (
-          <div className="results">
-            <h3>Medications Prescribed by {selectedPrescriberName} ({prescriberResults.length})</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Brand Name</th>
-                  <th>Generic Name</th>
-                  <th>Total Claims</th>
-                  <th>Beneficiaries</th>
-                  <th>Total Cost</th>
-                </tr>
-              </thead>
-              <tbody>
-                {prescriberResults.filter(rx => rx !== null).map((rx) => (
-                  <tr key={rx.id}>
-                    <td>{rx.brandName}</td>
-                    <td>{rx.genericName}</td>
-                    <td>{rx.totalClaims?.toLocaleString()}</td>
-                    <td>{rx.totalBeneficiaries?.toLocaleString()}</td>
-                    <td>${rx.totalDrugCost?.toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      )}
 
       <div className="search-section">
         <h2>Search Top Prescribers by Drug</h2>
@@ -196,12 +202,14 @@ export default function Home() {
             placeholder="Enter drug name (e.g., Eliquis)"
             value={drugSearch}
             onChange={(e) => setDrugSearch(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && searchByDrug()}
           />
           <input
             type="text"
             placeholder="State (optional, e.g., CA)"
             value={stateFilter}
             onChange={(e) => setStateFilter(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && searchByDrug()}
             style={{ flex: '0 0 150px' }}
           />
           <button onClick={searchByDrug} disabled={loading}>

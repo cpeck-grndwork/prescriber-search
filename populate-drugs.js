@@ -5,8 +5,8 @@ import { DynamoDBClient, ScanCommand } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, BatchWriteCommand } from '@aws-sdk/lib-dynamodb';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
-const PRESCRIPTION_TABLE = 'Prescription-uuvdrb2j3vgz3dzuh2jpib3hke-NONE';
-const DRUG_TABLE = 'Drug-uuvdrb2j3vgz3dzuh2jpib3hke-NONE'; // Update after deploying
+const PRESCRIPTION_TABLE = 'Prescription-2tozfkjj5ragdb5gqxn2kk2ugu-NONE';
+const DRUG_TABLE = 'Drug-2tozfkjj5ragdb5gqxn2kk2ugu-NONE'; // Update after deploying
 
 async function populateDrugs() {
   const uniqueDrugs = new Map();
