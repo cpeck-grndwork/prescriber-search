@@ -204,7 +204,7 @@ export default function Home() {
         <div className="search-form">
           <input
             type="text"
-            placeholder="Enter drug name (e.g., Eliquis)"
+            placeholder="Enter drug name (generic name must be used)"
             value={drugSearch}
             onChange={(e) => setDrugSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && searchByDrug()}
