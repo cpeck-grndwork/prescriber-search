@@ -40,13 +40,18 @@ export default function Home() {
         setPrescriberResults(data.filter(item => item !== null));
       } else {
         // Search by name in Prescriber table
-        const searchLower = npiSearch.toLowerCase();
+        const searchLower = npiSearch.toLowerCase().trim();
         const result = await client.models.Prescriber.list({
-          filter: { prescriberNameLower: { contains: searchLower } },
           limit: 10000000
         });
         
-        setPrescriberMatches(result.data.filter(item => item !== null));
+        // Filter results client-side for better matching
+        const filtered = result.data.filter(item => {
+          if (!item || !item.prescriberNameLower) return false;
+          return item.prescriberNameLower.includes(searchLower);
+        });
+        
+        setPrescriberMatches(filtered);
       }
       console.log('Prescriber results:', data);
     } catch (error) {
