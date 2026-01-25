@@ -211,7 +211,7 @@ export default function Home() {
           />
           <input
             type="text"
-            placeholder="State (optional, must use 2-letter abbreviation, e.g., CA)"
+            placeholder="State (optional, use 2-letter abbrev)"
             value={stateFilter}
             onChange={(e) => setStateFilter(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && searchByDrug()}
