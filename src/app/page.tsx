@@ -72,9 +72,10 @@ export default function Home() {
     setLoading(true);
     setSelectedNpi(npi);
     setSelectedPrescriberName(name);
+    setPrescriberMatches([]);
     try {
-      const { data } = await client.models.Prescription.list({
-        filter: { genericNameLower: { contains: drugSearch.toLowerCase() } },
+      const { data } = await client.models.Prescription.listPrescriptionByNpi({
+        npi: npi,
         limit: 10000000
       });
       const filtered = data.filter(item => item !== null);
