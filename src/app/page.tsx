@@ -19,14 +19,22 @@ export default function Home() {
   const [selectedNpi, setSelectedNpi] = useState<string | null>(null);
   const [selectedPrescriberName, setSelectedPrescriberName] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [prescriberSearched, setPrescriberSearched] = useState(false);
+  const [drugSearched, setDrugSearched] = useState(false);
 
   const searchByPrescriber = async () => {
+    if (!npiSearch.trim()) {
+      alert('Please enter an NPI or prescriber name');
+      return;
+    }
     console.log('searchByPrescriber called with:', npiSearch);
     setLoading(true);
     setPrescriberResults([]);
     setPrescriberMatches([]);
     setSelectedNpi(null);
     setDrugResults([]);
+    setPrescriberSearched(true);
+    setDrugSearched(false);
     try {
       let data;
       // Check if input is numeric (NPI) or text (name)
@@ -79,9 +87,19 @@ export default function Home() {
   };
 
   const searchByDrug = async () => {
+    if (!drugSearch.trim()) {
+      alert('Please enter a drug name');
+      return;
+    }
+    if (stateFilter && !/^[A-Z]{2}$/i.test(stateFilter.trim())) {
+      alert('State must be a 2-letter abbreviation (e.g., CA, NY)');
+      return;
+    }
     setLoading(true);
     setPrescriberResults([]);
     setPrescriberMatches([]);
+    setDrugSearched(true);
+    setPrescriberSearched(false);
     try {
       // Search Drug table for partial matches
       const drugResult = await client.models.Drug.list({
@@ -169,6 +187,11 @@ export default function Home() {
               </table>
             </div>
           )}
+          {prescriberSearched && !loading && prescriberMatches.length === 0 && prescriberResults.length === 0 && (
+            <div className="error">
+              No results found. Either this prescriber is not in the 2023 Medicare database, or the name/NPI is incorrect.
+            </div>
+          )}
           {prescriberResults.length > 0 && (
             <div className="results">
               <h3>Medications Prescribed by {selectedPrescriberName} ({prescriberResults.length})</h3>
@@ -211,7 +234,7 @@ export default function Home() {
           />
           <input
             type="text"
-            placeholder="State (optional, use 2-letter abbrev)"
+            placeholder="State (2 letters)"
             value={stateFilter}
             onChange={(e) => setStateFilter(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && searchByDrug()}
@@ -221,6 +244,11 @@ export default function Home() {
             Search
           </button>
         </div>
+        {drugSearched && !loading && drugResults.length === 0 && (
+          <div className="error">
+            No results found. The drug may not be in the 2023 medicare database or the spelling may be incorrect.
+          </div>
+        )}
         {drugResults.length > 0 && (
           <div className="results">
             <h3>Top Prescribers ({drugResults.length})</h3>
