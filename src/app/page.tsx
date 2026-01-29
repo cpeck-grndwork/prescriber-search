@@ -193,6 +193,9 @@ export default function Home() {
               No results found. Either this prescriber is not in the 2023 Medicare database, or the name/NPI is incorrect.
             </div>
           )}
+          {loading && prescriberSearched && (
+            <div className="loading">Searching over 20 million records, this may take a minute...</div>
+          )}
           {prescriberResults.length > 0 && (
             <div className="results">
               <h3>Medications Prescribed by {selectedPrescriberName} ({prescriberResults.length})</h3>
@@ -250,6 +253,9 @@ export default function Home() {
             No results found. The drug may not be in the 2023 medicare database or the spelling may be incorrect.
           </div>
         )}
+        {loading && drugSearched && (
+          <div className="loading">Searching over 20 million records, this may take a minute...</div>
+        )}
         {drugResults.length > 0 && (
           <div className="results">
             <h3>Top Prescribers ({drugResults.length})</h3>
@@ -278,8 +284,6 @@ export default function Home() {
           </div>
         )}
       </div>
-
-      {loading && <div className="loading">Loading...</div>}
     </div>
   );
 }
