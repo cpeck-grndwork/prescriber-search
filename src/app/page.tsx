@@ -140,6 +140,8 @@ export default function Home() {
 
   return (
     <div className="container">
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1832948711160952"
+     crossorigin="anonymous"></script>
       <h1>What do they prescribe?</h1>
 
       {drugResults.length === 0 && (
